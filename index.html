@@ -177,7 +177,7 @@
         let ip = checkCookie("userid");
         if (ip === false) {
             ip = generateRandomString(12);
-            setCookie(userid, ip, 365);
+            setCookie("userid", ip, 365);
         }
         
         const hymns = hymns_list_complete;
