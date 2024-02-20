@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="voting.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<img src="logo.webp" alt="">
+<body>
+    
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        //import { getFirestore, doc, getDocs, collection } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-lite.js';
+        let firestore;
+        await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then((result) => {firestore = result});
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyBybkPWlABynXLDQNCSqs7qFodNCZKoscQ",
+          authDomain: "hymn-voting.firebaseapp.com",
+          projectId: "hymn-voting",
+          storageBucket: "hymn-voting.appspot.com",
+          messagingSenderId: "762130514236",
+          appId: "1:762130514236:web:5ef935a5c6fe7caec1de39",
+          measurementId: "G-VVXLDN35N6"
+        };
+
+        async function getVotes(doc) {
+            
+            // console.log(doc);
+            // let votesArray = {};
+            // for (let hymn of hymns_list_complete) {
+            //     votesArray[hymn] = {};
+            // }
+            // await firestore.updateDoc(doc, {votes: votesArray});
+            const snapshot = await firestore.getDoc(doc);
+            return snapshot.data();
+        }
+
+        async function getDoc() {
+            const db = await firestore.getFirestore(app);
+            const doc = await firestore.doc(db, "Votes/votes");
+            return doc;
+        }
+
+        function generateHymns(sorted) {
+            console.log(sorted);
+            if (!sorted) {
+                hymns_list.innerHTML = "";
+
+                for (let hymn of hymns) {
+                let child = document.createElement("div");
+                child.className = "row"
+                let button = document.createElement("button");
+                button.className = "vote"
+                let count = document.createElement("span");
+                count.className = "count";
+                let text = document.createElement("span")
+                text.className = "hymn-title"
+                button.id = hymn;
+                text.innerHTML = hymn;
+                button.innerHTML = "vote";
+                let count_size = Object.keys(data[hymn]).length;
+                count.innerHTML = `Votes: ${count_size}`;
+                child.appendChild(button);
+                child.appendChild(text);
+                child.appendChild(count);
+                
+                hymns_list.appendChild(child);
+                button.addEventListener("click", (value) => {
+                    if (!(button.innerHTML === "✅")) {
+                        for (let key in Object.keys(data[value.target.id])) {
+                            if (key === ip) {
+                                return;
+                            }
+                        }
+                        console.log("checked")
+                        let hymnString = value.target.id.replace(".", "");
+                        firestore.updateDoc(doc, {[`votes.${hymnString}.${ip}`] : 0});
+                        button.innerHTML = "✅";
+                    }
+                    
+                    
+                    }
+                    )
+                }
+        } else {
+            console.log(sortedHymns)
+
+            hymns_list.innerHTML = "";
+            for (let hymn of sortedHymns.reverse()) {
+                let child = document.createElement("div");
+                child.className = "row"
+                let button = document.createElement("button");
+                button.className = "vote"
+                let count = document.createElement("span");
+                count.className = "count";
+                let text = document.createElement("span")
+                text.className = "hymn-title"
+                button.id = hymn;
+                text.innerHTML = hymn;
+                button.innerHTML = "vote";
+                let count_size = Object.keys(data[hymn]).length;
+                count.innerHTML = `Votes: ${count_size}`;
+                child.appendChild(button);
+                child.appendChild(text);
+                child.appendChild(count);
+                
+                hymns_list.appendChild(child);
+                button.addEventListener("click", (value) => {
+                    if (!(button.innerHTML === "✅")) {
+                        for (let key in Object.keys(data[value.target.id])) {
+                            if (key === ip) {
+                                return;
+                            }
+                        }
+                        console.log("checked")
+                        let hymnString = value.target.id.replace(".", "");
+                        firestore.updateDoc(doc, {[`votes.${hymnString}.${ip}`] : 0});
+                        button.innerHTML = "✅";
+                    }
+                    
+                    
+                    }
+                    )
+                }
+        }
+        }
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const doc = await getDoc();
+
+        const hymns_list = document.getElementById("hymns");
+        let data;
+        await getVotes(doc).then((value) => {data = value["votes"]});
+        let ip;
+        await fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => ip = data.ip.replaceAll(".", ""))
+        .catch(error => console.error('Error fetching IP address: ', error));
+        const hymns = hymns_list_complete;
+        let sortedHymns = [];
+        let sortedVotes = [];
+        const votes = [];
+        console.log(votes);
+        for (let i = 0; i < Object.keys(data).length; i ++) {
+            votes.push(data[hymns[i]]);
+        }
+        allVotes: for (let vote in votes){
+            let vote_size = Object.keys(votes[vote]).length;
+            for (let sortedVote in sortedVotes) {
+                console.log(`vote size : ${vote_size} sorted vote size: ${sortedVotes[sortedVote]}`)
+                if (vote_size <= sortedVotes[sortedVote]) {
+                    sortedVotes = [
+                        ...sortedVotes.slice(0, sortedVote),
+                        vote_size,
+                        ...sortedVote.slice(sortedVote)
+                    ];
+                    sortedHymns = [
+                        ...sortedHymns.slice(0, sortedVote),
+                        hymns[vote],
+                        ...sortedHymns.slice(sortedVote)
+                    ];
+                    continue allVotes;
+                }
+                
+            }
+            sortedVotes.push(vote_size);
+            sortedHymns.push(hymns[vote])
+        }
+        console.log(ip);
+        generateHymns(false);
+        const sortSwitch = document.getElementById("switch");
+        sortSwitch.addEventListener("click", (value) => {generateHymns(value.target.checked)})
+
+        
+
+        
+        
+
+        
+    </script>
+    <label class="switch">
+        <input type="checkbox" id="switch">
+        <span class="slider round"></span>
+    </label>
+    <span>Sort By Votes</span>
+    <div id="hymns">
+    </div>
+</body>
+</html>
