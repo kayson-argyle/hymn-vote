@@ -85,6 +85,9 @@
                         let hymnString = value.target.id.replace(".", "");
                         firestore.updateDoc(doc, {[`votes.${hymnString}.${ip}`] : 0});
                         button.innerHTML = "✅";
+                        let countString = parseInt(count.innerHTML.replace("Votes: ", "")) + 1;
+                        console.log();
+                        count.innerHTML = "Votes: " + countString;
                     }
                     
                     
@@ -224,6 +227,7 @@
         <strong>Heres how it works:</strong> Select your favorites from the hymnbook and the children's songbook, there's no limit to how many votes you have! Then, we will work with the ward orgainist to select hymns for sacrament meeting.
 
         <strong>There's no undo-vote button,</strong> but that's ok! Vote for everything that makes you feel the spirit!
+        <em>The hymnbook comes first, then the children's songbook is at the bottom.</em>
     </div>
     <label class="switch">
         <input type="checkbox" id="switch">
