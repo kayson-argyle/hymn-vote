@@ -95,7 +95,7 @@
             console.log(sortedHymns)
 
             hymns_list.innerHTML = "";
-            for (let hymn of sortedHymns.reverse()) {
+            for (let hymn of sortedHymns) {
                 let child = document.createElement("div");
                 child.className = "row"
                 let button = document.createElement("button");
@@ -161,6 +161,19 @@
             return result;
         }
 
+        function sortArrayAndApplySameOrder(arrToSort, arrToRearrange) {
+            // Create an array of indices [0, 1, 2, ...]
+            let indices = arrToSort.map((value, index) => index);
+
+            // Sort the indices array based on values in arrToSort
+            indices.sort((a, b) => arrToSort[a] - arrToSort[b]);
+
+            // Rearrange both arrays based on sorted indices
+            let sortedArrToSort = indices.map(index => arrToSort[index]);
+            let rearrangedArrToRearrange = indices.map(index => arrToRearrange[index]);
+
+            return [sortedArrToSort, rearrangedArrToRearrange];
+        }
 
 
 
@@ -181,39 +194,22 @@
         }
         
         const hymns = hymns_list_complete;
-        let sortedHymns = [];
-        let sortedVotes = [];
         const votes = [];
         console.log(votes);
         for (let i = 0; i < Object.keys(data).length; i ++) {
             votes.push(data[hymns[i]]);
         }
-        allVotes: for (let vote in votes){
-            let vote_size = Object.keys(votes[vote]).length;
-            for (let sortedVote in sortedVotes) {
-                console.log(`vote size : ${vote_size} sorted vote size: ${sortedVotes[sortedVote]}`)
-                if (vote_size <= sortedVotes[sortedVote]) {
-                    sortedVotes = [
-                        ...sortedVotes.slice(0, sortedVote),
-                        vote_size,
-                        ...sortedVote.slice(sortedVote)
-                    ];
-                    sortedHymns = [
-                        ...sortedHymns.slice(0, sortedVote),
-                        hymns[vote],
-                        ...sortedHymns.slice(sortedVote)
-                    ];
-                    continue allVotes;
-                }
-                
-            }
-            sortedVotes.push(vote_size);
-            sortedHymns.push(hymns[vote])
+        let vote_counts = [];
+        for (let i of votes) {
+            vote_counts.push(Object.keys(i).length)
         }
+        let [sortedVotes, sortedHymns] = sortArrayAndApplySameOrder(vote_counts, hymns);
+        sortedHymns.reverse();
+        
         console.log(ip);
         generateHymns(false);
         const sortSwitch = document.getElementById("switch");
-        sortSwitch.addEventListener("click", (value) => {generateHymns(value.target.checked)})
+        sortSwitch.addEventListener("click", (value) => {generateHymns(value.target.checked)});
 
         
 
